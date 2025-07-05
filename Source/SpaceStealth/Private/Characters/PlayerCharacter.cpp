@@ -6,6 +6,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Kismet/KismetMathLibrary.h"
+
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -35,18 +37,18 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* InputSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
 		{
-			if(PlayerInputData.InputMappingContext == nullptr)
+			if (PlayerInputData.InputMappingContext == nullptr)
 			{
-				return; 
+				return;
 			}
 			InputSystem->AddMappingContext(PlayerInputData.InputMappingContext, 0);
 		}
 	}
-	if(UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EIC->BindAction(PlayerInputData.MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
 		EIC->BindAction(PlayerInputData.LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
-		EIC->BindAction(PlayerInputData.JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump); 
+		EIC->BindAction(PlayerInputData.JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 	}
 }
 
@@ -59,8 +61,11 @@ void APlayerCharacter::Tick(float DeltaTime)
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
 	FVector2D Axis = Value.Get<FVector2D>();
-	AddMovementInput(GetActorForwardVector(), Axis.Y);
-	AddMovementInput(GetActorRightVector(), Axis.X);
+	FRotator ContRot = GetControlRotation();
+	const FVector XWorldVector = UKismetMathLibrary::GetRightVector(FRotator(0, ContRot.Yaw, ContRot.Roll));
+	const FVector YWorldVector = UKismetMathLibrary::GetForwardVector(FRotator(0, ContRot.Yaw, 0));
+	AddMovementInput(XWorldVector, Axis.X, false);
+	AddMovementInput(YWorldVector, Axis.Y, false);
 }
 
 void APlayerCharacter::Look(const FInputActionValue& Value)
