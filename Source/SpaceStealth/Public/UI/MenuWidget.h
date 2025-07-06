@@ -11,7 +11,7 @@ class UTextBlock;
 class UButton;
 class UVerticalBox;
 class USlider;
-class UMaterialInstance; 
+class UMaterialInstance;
 
 
 UENUM(BlueprintType)
@@ -19,21 +19,34 @@ enum class EMenuSelection : uint8
 {
 	Play,
 	Settings,
-	Exit
+	Exit,
+	None UMETA(Hidden) // This is used to hide the enum value in the editor, but still allows it to be used in code
 };
+
+//EMenuSelection& operator++(EMenuSelection& Selection)
+//{
+//	int n = static_cast<int>(Selection);
+//	++n;
+//	Selection = static_cast<EMenuSelection>(n);
+//	return Selection;
+//}
+
 UENUM(BlueprintType)
 enum class ESettingsSelection : uint8
 {
-	MasterVolume,
-	MusicVolume,
-	EffectsVolume, 
-	BackToMainMenu
+	MasterVolume UMETA(DisplayName = "Master Volume"),
+	MusicVolume UMETA(DisplayName = "Music Volume"),
+	EffectsVolume UMETA(DisplayName = "Effects Volume"),
+	BackToMainMenu UMETA(DisplayName = "Back to Main Menu"),
+	None UMETA(Hidden) // This is used to hide the enum value in the editor, but still allows it to be used in code
 };
 UENUM(BlueprintType)
 enum class EOpenMainMenu : uint8
 {
 	MainMenu UMETA(DisplayName = "Main Menu"),
-	SettingsMenu UMETA(DisplayName = "Settings Menu")
+	SettingsMenu UMETA(DisplayName = "Settings Menu"),
+	None UMETA(Hidden) // This is used to hide the enum value in the editor, but still allows it to be used in code
+
 };
 
 
@@ -41,16 +54,16 @@ UCLASS()
 class SPACESTEALTH_API UMenuWidget : public UBaseSpaceWidget
 {
 	GENERATED_UCLASS_BODY()
-public: 
-	UMenuWidget(); 
+public:
+	UMenuWidget();
 
 	virtual void NativeConstruct() override;
 
 private:
 	// when doing the bind widget, the name must match the name in the UMG editor or it will have a compile error in the editor
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI|Vertical Box", Meta = (BindWidget,AllowPrivateAccess = true))
-	TObjectPtr<UVerticalBox> MainMenuBox; 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI|Vertical Box", Meta = (BindWidget, AllowPrivateAccess = true))
+	TObjectPtr<UVerticalBox> MainMenuBox;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI|Vertical Box", Meta = (BindWidget, AllowPrivateAccess = true))
 	TObjectPtr<UVerticalBox> SettingsBox;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI|Button", Meta = (BindWidget, AllowPrivateAccess = true))
@@ -77,16 +90,17 @@ private:
 	TObjectPtr<UMaterialInstance> ButtonMaterial;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI|Select Material", Meta = (BindWidget, AllowPrivateAccess = true))
 	FLinearColor ButtonColor;
-	
-	EMenuSelection CurrentMenuIndex; // 0 = Main Menu, 1 = Settings Menu
-	ESettingsSelection CurrentSettingsIndex; 
+
+	EMenuSelection CurrentMenu; // 0 = Main Menu, 1 = Settings Menu
+	EOpenMainMenu OpenMainMenu; // 0 = Main Menu, 1 = Settings Menu
+	ESettingsSelection CurrentSetting;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI", Meta = (AllowPrivateAccess = true))
 	const TSoftObjectPtr<UWorld> LevelToLoad;
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void ExitGame(); 
+	void ExitGame();
 	UFUNCTION(BlueprintCallable)
 	void PlayGame();
 	UFUNCTION(BlueprintCallable)
@@ -94,10 +108,9 @@ public:
 
 	UFUNCTION()
 	void CloseSettings();
+
 	UFUNCTION(BlueprintCallable)
-	void MenuLeft();
-	UFUNCTION(BlueprintCallable)
-	void MenuRight();
+	void MenuAdjustSlider(bool isLeftSlide);
 
 
 	UFUNCTION(BlueprintCallable)
@@ -106,5 +119,6 @@ public:
 	void MenuUp();
 	UFUNCTION(BlueprintCallable)
 	void MenuSelection();
+
 
 };
