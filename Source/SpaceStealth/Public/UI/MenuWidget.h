@@ -73,7 +73,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI|Button", Meta = (BindWidget, AllowPrivateAccess = true))
 	TObjectPtr<UButton> ExitButton;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI|Text", Meta = (BindWidget, AllowPrivateAccess = true))
-	TObjectPtr<UTextBlock> PlaytText;
+	TObjectPtr<UTextBlock> PlayText;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI|Text", Meta = (BindWidget, AllowPrivateAccess = true))
 	TObjectPtr<UTextBlock> SettingsText;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI|Text", Meta = (BindWidget, AllowPrivateAccess = true))
@@ -86,9 +86,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI|Slider", Meta = (BindWidget, AllowPrivateAccess = true))
 	TObjectPtr<USlider> EffectsVolume;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI|Select Material", Meta = (BindWidget, AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI|Select Material", Meta = (AllowPrivateAccess = true))
 	TObjectPtr<UMaterialInstance> ButtonMaterial;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI|Select Material", Meta = (BindWidget, AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI|Select Material", Meta = (AllowPrivateAccess = true))
 	FLinearColor ButtonColor;
 
 	EMenuSelection CurrentMenu; // 0 = Main Menu, 1 = Settings Menu
@@ -119,6 +119,7 @@ public:
 	void MenuUp();
 	UFUNCTION(BlueprintCallable)
 	void MenuSelection();
-
+	
+	void SetWidgetColour();
 
 };

@@ -9,7 +9,7 @@
 #include "Components/Overlay.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "Styling/SlateTypes.h"
 
 UMenuWidget::UMenuWidget(const FObjectInitializer& Object) :Super(Object)
 {
@@ -19,7 +19,7 @@ UMenuWidget::UMenuWidget(const FObjectInitializer& Object) :Super(Object)
 void UMenuWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	PlaytText->SetText(FText::FromString("Play"));
+	PlayText->SetText(FText::FromString("Play"));
 	SettingsText->SetText(FText::FromString("Settings"));
 	ExitText->SetText(FText::FromString("Exit"));
 
@@ -64,24 +64,24 @@ void UMenuWidget::CloseSettings()
 
 void UMenuWidget::MenuAdjustSlider(bool isLeftSlide)
 {
-	if (OpenMainMenu == EOpenMainMenu::SettingsMenu) 
+	if (OpenMainMenu == EOpenMainMenu::SettingsMenu)
 	{
-		if(UOverlay* Overlay = Cast<UOverlay>(SettingsBox->GetChildAt(static_cast<int>(CurrentSetting))))
+		if (UOverlay* Overlay = Cast<UOverlay>(SettingsBox->GetChildAt(static_cast<int>(CurrentSetting))))
 		{
 			if (USlider* Slider = Cast<USlider>(Overlay->GetChildAt(0)))
 			{
 				float Direction = isLeftSlide ? -1.0f : 1.0f;
-				float NewValue = FMath::Clamp(Slider->GetValue() + Slider->GetStepSize()*Direction, Slider->GetMinValue(), Slider->GetMaxValue());
+				float NewValue = FMath::Clamp(Slider->GetValue() + Slider->GetStepSize() * Direction, Slider->GetMinValue(), Slider->GetMaxValue());
 				Slider->SetValue(NewValue);
 			}
-		
+
 		}
 	}
 }
 
 void UMenuWidget::MenuDown()
 {
-	int32 NextIndex; 
+	int32 NextIndex;
 	switch (OpenMainMenu)
 	{
 	case EOpenMainMenu::MainMenu:
@@ -97,7 +97,7 @@ void UMenuWidget::MenuDown()
 
 void UMenuWidget::MenuUp()
 {
-	int32 MaxIndex; 
+	int32 MaxIndex;
 	int32 PreviousIndex;
 	switch (OpenMainMenu)
 	{
@@ -147,3 +147,67 @@ void UMenuWidget::MenuSelection()
 		break;
 	}
 }
+
+void UMenuWidget::SetWidgetColour()
+{
+	switch (OpenMainMenu)
+	{
+	case EOpenMainMenu::MainMenu:
+
+		for (int i = 0; i < static_cast<int>(EMenuSelection::None); ++i)
+		{
+			if (UButton* Button = Cast<UButton>(MainMenuBox->GetChildAt(i)))
+			{
+				if (i == static_cast<int>(CurrentMenu))
+				{
+					Button->SetBackgroundColor(ButtonColor);
+				}
+				else
+				{
+					Button->SetBackgroundColor(FLinearColor::White);
+				}
+			}
+		}
+		break;
+	case EOpenMainMenu::SettingsMenu:
+
+		for (int i = 0; i < static_cast<int>(ESettingsSelection::None); ++i)
+		{
+			if (UOverlay* Overlay = Cast<UOverlay>(SettingsBox->GetChildAt(i))) {
+				if (Overlay)
+				{
+					if (i == static_cast<int>(CurrentSetting))
+					{
+						if (USlider* Slider = Cast<USlider>(Overlay->GetChildAt(0)))
+							Slider->SetSliderBarColor(ButtonColor); // Highlight the selected button
+					}
+					else
+					{
+						if (USlider* Slider = Cast<USlider>(Overlay->GetChildAt(0)))
+							Slider->SetSliderBarColor(FLinearColor::White); // Default color for unselected buttons
+					}
+				}
+			}
+			else
+			{
+				UButton* Button = Cast<UButton>(SettingsBox->GetChildAt(i));
+				if (Button)
+				{
+					if (i == static_cast<int>(CurrentSetting))
+					{
+						Button->SetBackgroundColor(ButtonColor); // Highlight the selected button
+					}
+					else
+					{
+						Button->SetBackgroundColor(FLinearColor::White); // Default color for unselected buttons
+					}
+				}
+			}
+		}
+		break;
+	default:
+		break;
+	}
+
+}
+
