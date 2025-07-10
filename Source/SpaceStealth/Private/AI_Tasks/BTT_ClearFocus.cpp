@@ -4,7 +4,7 @@
 #include "AI_Tasks/BTT_ClearFocus.h"
 #include "Controller/BaseEnemyController.h"
 
-UBTT_ClearFocus::UBTT_ClearFocus(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
+UBTT_ClearFocus::UBTT_ClearFocus()
 {
 	NodeName = TEXT("Clear Focus");
 }

@@ -3,18 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
+#include "AI_Tasks/BTT_BaseTask.h"
 #include "BTT_ClearFocus.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SPACESTEALTH_API UBTT_ClearFocus : public UBTTask_BlackboardBase
+class SPACESTEALTH_API UBTT_ClearFocus : public UBTT_BaseTask
 {
 	GENERATED_BODY()
 public:
-	UBTT_ClearFocus(const FObjectInitializer& ObjectInitializer);
+	UBTT_ClearFocus();
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 

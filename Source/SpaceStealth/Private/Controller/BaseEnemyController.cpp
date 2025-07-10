@@ -2,10 +2,10 @@
 
 
 #include "Controller/BaseEnemyController.h"
-#include "Perception/AIPerceptionComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include <Kismet/GameplayStatics.h>
+#include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
+#include "Perception/AIPerceptionComponent.h"
 #include "Perception/AIPerceptionSystem.h"
 #include "Perception/AISense_Hearing.h"
 #include "Perception/AISense_Sight.h"
@@ -40,22 +40,40 @@ void ABaseEnemyController::Tick(float DeltaTime)
 
 void ABaseEnemyController::OnUpdatedPerception(const TArray<AActor*>& UpdatedActors)
 {
-	//for (AActor* actor: UpdatedActors)
-	//{
-	//	//if(!IsValid(actor))
-	//	//{
-	//	//	continue;
-	//	//}
-	//	//bool OutSight = false;
-	//	//FAIStimulus OutSightStimulus;
-	//	//CanSenseActor(actor, EAISenses::Sight, OutSight, OutSightStimulus);
-	//	//if (OutSight)
-	//	//{
-	//	//	// Handle sight perception
-	//	//	SetStateAsAttacking(actor);
-	//	//	return;
-	//	//}
-	//}
+	for (AActor* actor: UpdatedActors)
+	{
+		if(!IsValid(actor))
+		{
+			continue;
+		}
+		bool bOutSense = false;
+		FAIStimulus OutStimulus;
+		CanSenseActor(actor, EAISenses::Sight, bOutSense, OutStimulus);
+		if (bOutSense)
+		{
+			// Handle sight perception
+			SetStateAsAttacking(actor);
+			bOutSense = false; // Reset for next sense check
+			return;
+		}
+		CanSenseActor(actor, EAISenses::Hearing, bOutSense, OutStimulus);
+		if (bOutSense)
+		{
+			// Handle hearing perception
+			HandleSensedSound(OutStimulus);
+			bOutSense = false; // Reset for next sense check
+			return;
+		}
+		CanSenseActor(actor, EAISenses::Damage, bOutSense, OutStimulus);
+		if (bOutSense)
+		{
+			// Handle damage perception
+			HandleSensedDamage(actor, OutStimulus);
+			bOutSense = false; // Reset for next sense check
+			return;
+		}
+
+	}
 }
 
 /// <summary>
@@ -65,43 +83,42 @@ void ABaseEnemyController::OnUpdatedPerception(const TArray<AActor*>& UpdatedAct
 void ABaseEnemyController::CanSenseActor(AActor* Actor, EAISenses SenseType, bool& OutSense, FAIStimulus& OutStimulus)
 {
 	FActorPerceptionBlueprintInfo PerceptionInfo;
-	AIPerceptionComponent->GetActorsPerception(Actor, PerceptionInfo); 
+	AIPerceptionComponent->GetActorsPerception(Actor, PerceptionInfo);
 	for (const FAIStimulus& Stimulus : PerceptionInfo.LastSensedStimuli)
 	{
 		TSubclassOf<UAISense> FoundSense = UAIPerceptionSystem::GetSenseClassForStimulus(GetWorld(), Stimulus);
 		switch (SenseType)
 		{
-			case EAISenses::Sight:
-				if (FoundSense == UAISense_Sight::StaticClass())
-				{
-					OutSense = Stimulus.WasSuccessfullySensed();
-					OutStimulus = Stimulus;
-					return;
-				}
-				break;
-			case EAISenses::Hearing:
-				if (FoundSense == UAISense_Hearing::StaticClass())
-				{
-					OutSense = Stimulus.WasSuccessfullySensed();
-					OutStimulus = Stimulus;
-					return;
-				}
-				break;
-			case EAISenses::Damage:
-				if (FoundSense == UAISense_Damage::StaticClass())
-				{
-					OutSense = Stimulus.WasSuccessfullySensed();
-					OutStimulus = Stimulus;
-					return;
-				}
-				break;
-			default:
-				break;
+		case EAISenses::None:
+			break;
+		case EAISenses::Sight:
+			if (FoundSense == UAISense_Sight::StaticClass())
+			{
+				OutSense = Stimulus.WasSuccessfullySensed();
+				OutStimulus = Stimulus;
+			}
+			break;
+		case EAISenses::Hearing:
+			if (FoundSense == UAISense_Hearing::StaticClass())
+			{
+				OutSense = Stimulus.WasSuccessfullySensed();
+				OutStimulus = Stimulus;
+			}
+			break;
+		case EAISenses::Damage:
+			if (FoundSense == UAISense_Damage::StaticClass())
+			{
+				OutSense = Stimulus.WasSuccessfullySensed();
+				OutStimulus = Stimulus;
+			}
+			break;
+		default:
+			break;
 		}
 	}
 }
 
-void ABaseEnemyController::HandleSensedSight(AActor* Actor, FAIStimulus Stimulus)
+void ABaseEnemyController::HandleSensedSight(AActor* Actor, const FAIStimulus& Stimulus)
 {
 	switch(GetCurrentAIState())
 	{
@@ -120,7 +137,7 @@ void ABaseEnemyController::HandleSensedSight(AActor* Actor, FAIStimulus Stimulus
 	}
 }
 
-void ABaseEnemyController::HandleSensedSound(FAIStimulus Stimulus)
+void ABaseEnemyController::HandleSensedSound(const FAIStimulus& Stimulus)
 {
 	switch (GetCurrentAIState())
 	{
@@ -135,7 +152,7 @@ void ABaseEnemyController::HandleSensedSound(FAIStimulus Stimulus)
 	}
 }
 
-void ABaseEnemyController::HandleSensedDamage(AActor* Actor, FAIStimulus Stimulus)
+void ABaseEnemyController::HandleSensedDamage(AActor* Actor, const FAIStimulus& Stimulus)
 {
 	switch (GetCurrentAIState())
 	{

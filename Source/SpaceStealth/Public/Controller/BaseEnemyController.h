@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "Enums/EnemyEnums.h"
 #include "BaseEnemyController.generated.h"
 
 class UAIPerceptionComponent;
@@ -11,31 +12,6 @@ class UAIPerceptionComponent;
 /**
  *
  */
-UENUM(BlueprintType)
-enum class EMovementSpeed : uint8
-{
-	Idle UMETA(DisplayName = "Idle"),
-	Walking UMETA(DisplayName = "Walking"),
-	Jogging UMETA(DisplayName = "Jogging"),
-	Running UMETA(DisplayName = "Running"),
-};
-UENUM(BlueprintType)
-enum class EAIStates : uint8
-{
-	Passive UMETA(DisplayName = "Passive"),
-	Attacking UMETA(DisplayName = "Attacking"),
-	Investigating UMETA(DisplayName = "Investigating"),
-	Frozen UMETA(DisplayName = "Frozen"),
-	Dead UMETA(DisplayName = "Dead"),
-};
-UENUM(BlueprintType)
-enum class EAISenses : uint8 {
-	None UMETA(DisplayName = "None"),
-	Sight UMETA(DisplayName = "Sight"),
-	Hearing UMETA(DisplayName = "Hearing"),
-	Damage UMETA(DisplayName = "Damage"),
-};
-
 UCLASS()
 class SPACESTEALTH_API ABaseEnemyController : public AAIController
 {
@@ -64,13 +40,15 @@ private:
 	UFUNCTION()
 	void OnUpdatedPerception(const TArray<AActor*>& UpdatedActors);
 
-	//void CanSenseActor(AActor* Actor, EAI_Sense Sense, bool& OutSensed, FAIStimulus& OutStimulus);
-
+	UFUNCTION()
 	void CanSenseActor(AActor* Actor, EAISenses SenseType, bool& OutSense, FAIStimulus& OutStimulus);
 
-	void HandleSensedSight(AActor* Actor, FAIStimulus Stimulus);
-	void HandleSensedSound(FAIStimulus Stimulus);
-	void HandleSensedDamage(AActor* Actor, FAIStimulus Stimulus);
+	UFUNCTION()
+	void HandleSensedSight(AActor* Actor, const FAIStimulus& Stimulus);
+	UFUNCTION()
+	void HandleSensedSound(const FAIStimulus& Stimulus);
+	UFUNCTION()
+	void HandleSensedDamage(AActor* Actor, const FAIStimulus& Stimulus);
 
 public:
 	UFUNCTION(BlueprintPure)

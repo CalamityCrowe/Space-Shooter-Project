@@ -3,21 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AI_Tasks/BTT_BaseTask.h"
-#include "BTT_FocusTarget.generated.h"
+#include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
+#include "BTT_BaseTask.generated.h"
 
 /**
  * 
  */
-UCLASS()
-class SPACESTEALTH_API UBTT_FocusTarget : public UBTT_BaseTask
+UCLASS(Abstract)
+class SPACESTEALTH_API UBTT_BaseTask : public UBTTask_BlackboardBase
 {
 	GENERATED_BODY()
 public:
-	UBTT_FocusTarget();
+	UBTT_BaseTask();
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
-	UPROPERTY(EditAnywhere, Category = "Target")
-	FBlackboardKeySelector TargetKey;
 };

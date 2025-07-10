@@ -5,7 +5,7 @@
 #include "Controller/BaseEnemyController.h"
 #include "BehaviorTree/BTFunctionLibrary.h"
 
-UBTT_FocusTarget::UBTT_FocusTarget(const FObjectInitializer& ObjectInitializer)
+UBTT_FocusTarget::UBTT_FocusTarget()
 {
 	NodeName = "Focus Target";
 }

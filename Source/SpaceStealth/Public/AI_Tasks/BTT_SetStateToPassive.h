@@ -4,20 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "AI_Tasks/BTT_BaseTask.h"
-#include "BTT_FocusTarget.generated.h"
+#include "BTT_SetStateToPassive.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SPACESTEALTH_API UBTT_FocusTarget : public UBTT_BaseTask
+class SPACESTEALTH_API UBTT_SetStateToPassive : public UBTT_BaseTask
 {
 	GENERATED_BODY()
 public:
-	UBTT_FocusTarget();
+	UBTT_SetStateToPassive();
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
-	UPROPERTY(EditAnywhere, Category = "Target")
-	FBlackboardKeySelector TargetKey;
 };
