@@ -9,7 +9,7 @@
 class UAIPerceptionComponent;
 
 /**
- * 
+ *
  */
 UENUM(BlueprintType)
 enum class EMovementSpeed : uint8
@@ -40,7 +40,7 @@ UCLASS()
 class SPACESTEALTH_API ABaseEnemyController : public AAIController
 {
 	GENERATED_BODY()
-	
+
 public:
 	ABaseEnemyController();
 protected:
@@ -55,7 +55,7 @@ private:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Blackboard|Keys", meta = (AllowPrivateAccess = true))
 	FName POIKeyName;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Blackboard|Keys", meta = (AllowPrivateAccess = true))
-	FName AIStateKeyName; 
+	FName AIStateKeyName;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Blackboard|Behaviour Trees", meta = (AllowPrivateAccess = true))
 	TObjectPtr<UBehaviorTree> BehaviourTree;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Components", meta = (AllowPrivateAccess = true))
@@ -64,7 +64,17 @@ private:
 	UFUNCTION()
 	void OnUpdatedPerception(const TArray<AActor*>& UpdatedActors);
 
+	//void CanSenseActor(AActor* Actor, EAI_Sense Sense, bool& OutSensed, FAIStimulus& OutStimulus);
+
+	void CanSenseActor(AActor* Actor, EAISenses SenseType, bool& OutSense, FAIStimulus& OutStimulus);
+
+	void HandleSensedSight(AActor* Actor, FAIStimulus Stimulus);
+	void HandleSensedSound(FAIStimulus Stimulus);
+	void HandleSensedDamage(AActor* Actor, FAIStimulus Stimulus);
+
 public:
+	UFUNCTION(BlueprintPure)
+	EAIStates GetCurrentAIState();
 	UFUNCTION(BlueprintCallable)
 	void SetStateAsPassive();
 	UFUNCTION(BlueprintCallable)
