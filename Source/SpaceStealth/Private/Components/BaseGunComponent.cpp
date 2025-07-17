@@ -22,6 +22,7 @@ UBaseGunComponent::UBaseGunComponent()
 
 void UBaseGunComponent::BeginPlay()
 {
+	Super::BeginPlay();
 }
 
 void UBaseGunComponent::Fire()

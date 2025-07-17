@@ -8,6 +8,23 @@
 #include "GameplayEffect.h"
 #include "BaseCharacter.generated.h"
 
+class UBaseAbility; 
+class UGameplayEffect;
+
+
+UCLASS(BlueprintType)
+class SPACESTEALTH_API UCharacterConfig : public UDataAsset
+{
+	GENERATED_BODY()
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS")
+	TArray<TSubclassOf<UBaseAbility>> DefaultAbilities;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS")
+	TArray<TSubclassOf<UGameplayEffect>> DefaultEffects;
+};
+
+
 UCLASS()
 class SPACESTEALTH_API ABaseCharacter : public ACharacter, public IAbilitySystemInterface
 {
@@ -17,9 +34,19 @@ public:
 	// Sets default values for this character's properties
 	ABaseCharacter();
 
+	virtual void OnDamageReceived(float Damage, const FGameplayTagContainer& DamageTags, const FHitResult& HitInfo, AActor* Instigator, AActor* DamageCauser);
+
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return ASC; }
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS")
+	TObjectPtr<UCharacterConfig> CharacterConfig;
+
+	virtual void OnHealthAttributeChanged(const FOnAttributeChangeData& Data);
+	UFUNCTION(BlueprintImplementableEvent, Category = "GAS")
+	void OnHealthChanged(float OldHealth, float NewHealth);
 
 public:	
 	// Called every frame
@@ -28,7 +55,10 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return ASC; }
+	virtual void InitializeAbilities();		
+	virtual void InitializeAttributes();
+
+	virtual void PostInitializeComponents() override;
 
 private:
 	virtual void ComponentSetup(); 
