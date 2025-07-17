@@ -7,6 +7,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Components/BaseGunComponent.h"
 
 
 APlayerCharacter::APlayerCharacter()
@@ -19,14 +20,7 @@ APlayerCharacter::APlayerCharacter()
 	PlayerInputData.JumpAction = nullptr;
 	PlayerInputData.InputMappingContext = nullptr;
 
-	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	SpringArmComponent->SetupAttachment(RootComponent);
-	Camera->SetupAttachment(SpringArmComponent);
-
-	SpringArmComponent->TargetArmLength = 300.0f; // Set the distance of the camera from the player
-	SpringArmComponent->bUsePawnControlRotation = true; // Rotate the arm based on the controller's rotation
-	SpringArmComponent->SocketOffset = FVector(60.0f, 40.0f, 0.0f); // Offset the camera slightly above the player
+	ComponentSetup(); 
 
 }
 
@@ -37,11 +31,12 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* InputSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
 		{
-			if (PlayerInputData.InputMappingContext == nullptr)
+			if (PlayerInputData.InputMappingContext == nullptr || PlayerAttackInput.InputMappingContext == nullptr)
 			{
 				return;
 			}
 			InputSystem->AddMappingContext(PlayerInputData.InputMappingContext, 0);
+			InputSystem->AddMappingContext(PlayerAttackInput.InputMappingContext, 0);
 		}
 	}
 	if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(PlayerInputComponent))
@@ -49,6 +44,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EIC->BindAction(PlayerInputData.MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
 		EIC->BindAction(PlayerInputData.LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 		EIC->BindAction(PlayerInputData.JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
+
+		EIC->BindAction(PlayerAttackInput.AimAction, ETriggerEvent::Started, this, &APlayerCharacter::Aim);
+		EIC->BindAction(PlayerAttackInput.AimAction, ETriggerEvent::Completed, this, &APlayerCharacter::Aim);
+
 	}
 }
 
@@ -76,4 +75,27 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 		PC->AddYawInput(Axis.X);
 		PC->AddPitchInput(Axis.Y);
 	}
+}
+
+void APlayerCharacter::Aim(const FInputActionValue& Value)
+{
+	bIsAiming = Value.Get<bool>();
+	// do other camera work here, to give a better impression of the aiming working
+
+}
+
+void APlayerCharacter::ComponentSetup()
+{
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+	SpringArmComponent->SetupAttachment(RootComponent);
+	Camera->SetupAttachment(SpringArmComponent);
+
+	SpringArmComponent->TargetArmLength = 300.0f; // Set the distance of the camera from the player
+	SpringArmComponent->bUsePawnControlRotation = true; // Rotate the arm based on the controller's rotation
+	SpringArmComponent->SocketOffset = FVector(60.0f, 40.0f, 0.0f); // Offset the camera slightly above the player
+
+	GunComponent = CreateDefaultSubobject<UBaseGunComponent>(TEXT("GunComponent"));
+	GunComponent->SetupAttachment(GetMesh());
+
 }

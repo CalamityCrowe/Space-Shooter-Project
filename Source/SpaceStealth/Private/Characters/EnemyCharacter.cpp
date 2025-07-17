@@ -33,7 +33,7 @@ void AEnemyCharacter::SetMovementSpeed_Implementation(EMovementSpeed NewMovement
 		GetCharacterMovement()->MaxWalkSpeed = 300.0f;
 		break;
 	case EMovementSpeed::Running:
-		GetCharacterMovement()->MaxWalkSpeed = 450.0f;
+		GetCharacterMovement()->MaxWalkSpeed = 350.0f;
 		break;
 	}
 }

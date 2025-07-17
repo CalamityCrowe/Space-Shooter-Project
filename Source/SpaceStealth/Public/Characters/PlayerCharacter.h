@@ -11,6 +11,7 @@ class UInputAction;
 class UInputMappingContext;
 class UCameraComponent;
 class USpringArmComponent;
+class UBaseGunComponent;
 /**
  * 
  */
@@ -30,6 +31,21 @@ public :
 	TObjectPtr<UInputMappingContext> InputMappingContext;
 };
 
+USTRUCT(BlueprintType)
+struct FPlayerAttackInput
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	TObjectPtr<UInputAction> FireAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	TObjectPtr<UInputAction> ReloadAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	TObjectPtr<UInputAction> AimAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	TObjectPtr<UInputMappingContext> InputMappingContext;
+};
+
 UCLASS()
 class SPACESTEALTH_API APlayerCharacter : public ABaseCharacter
 {
@@ -45,6 +61,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	FPlayerInputData PlayerInputData;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	FPlayerAttackInput PlayerAttackInput;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = true))
 	TObjectPtr<UCameraComponent> Camera;
@@ -55,5 +73,23 @@ public:
 	void Move(const FInputActionValue& Value);
 	UFUNCTION()
 	void Look(const FInputActionValue& Value);
+	UFUNCTION()
+	void Aim(const FInputActionValue& Value);
 
+
+	UFUNCTION(BlueprintPure)
+	bool IsAiming() const { return bIsAiming; }
+
+private:
+	virtual void ComponentSetup() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun", meta = (AllowPrivateAccess = true))
+	TObjectPtr<UBaseGunComponent> GunComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun", meta = (AllowPrivateAccess = true))
+	TObjectPtr<UAnimMontage> FireAnimation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun", meta = (AllowPrivateAccess = true))
+	FName AttachSocket;
+
+	bool bIsAiming; 
 };
