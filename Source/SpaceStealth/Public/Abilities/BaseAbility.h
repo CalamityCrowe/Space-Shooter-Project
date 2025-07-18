@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
-#include "../SpaceStealth.h"
+#include "Enums/AbilityEnums.h"
 #include "BaseAbility.generated.h"
 
 /**

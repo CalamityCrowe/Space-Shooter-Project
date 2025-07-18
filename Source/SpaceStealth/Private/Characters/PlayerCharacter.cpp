@@ -2,26 +2,30 @@
 
 
 #include "Characters/PlayerCharacter.h"
-#include "../SpaceStealth.h"
 #include "AbilitySystemComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BaseGunComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
-
 #include "EnhancedInputSubsystems.h"
+#include "Enums/AbilityEnums.h"
 #include "Kismet/KismetMathLibrary.h"
 
 APlayerCharacter::APlayerCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Initialize Player Input Data
-	PlayerInputData.MoveAction = nullptr;
-	PlayerInputData.LookAction = nullptr;
-	PlayerInputData.JumpAction = nullptr;
-	PlayerInputData.InputMappingContext = nullptr;
-	ComponentSetup(); 
+	ComponentSetup();
+}
+
+void APlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (GunComponent)
+	{
+		GunComponent->GrantAbilities();
+	}
 }
 
 void APlayerCharacter::OnDamageReceived(const FHitResult* HitResult, const float DamageAmount, AActor* HitInstigator)
@@ -37,22 +41,22 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* InputSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
 		{
-			if (PlayerInputData.InputMappingContext == nullptr || PlayerAttackInput.InputMappingContext == nullptr)
+			if (PlayerInputData->InputMappingContext == nullptr || PlayerAttackInput->InputMappingContext == nullptr)
 			{
 				return;
 			}
-			InputSystem->AddMappingContext(PlayerInputData.InputMappingContext, 0);
-			InputSystem->AddMappingContext(PlayerAttackInput.InputMappingContext, 0);
+			InputSystem->AddMappingContext(PlayerInputData->InputMappingContext, 0);
+			InputSystem->AddMappingContext(PlayerAttackInput->InputMappingContext, 0);
 		}
 	}
 	if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		EIC->BindAction(PlayerInputData.MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
-		EIC->BindAction(PlayerInputData.LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
-		EIC->BindAction(PlayerInputData.JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
+		EIC->BindAction(PlayerInputData->MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
+		EIC->BindAction(PlayerInputData->LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
+		EIC->BindAction(PlayerInputData->JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 
-		EIC->BindAction(PlayerAttackInput.AimAction, ETriggerEvent::Started, this, &APlayerCharacter::Aim);
-		EIC->BindAction(PlayerAttackInput.AimAction, ETriggerEvent::Completed, this, &APlayerCharacter::Aim);
+		EIC->BindAction(PlayerAttackInput->AimAction, ETriggerEvent::Started, this, &APlayerCharacter::Aim);
+		EIC->BindAction(PlayerAttackInput->AimAction, ETriggerEvent::Completed, this, &APlayerCharacter::Aim);
 
 	}
 }
@@ -66,7 +70,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
 	MovementAxis = Value.Get<FVector2D>();
-	SendAbilityLocalInput(Value, static_cast<int32>(EAbilityInputID::Move));	
+	SendAbilityLocalInput(Value, static_cast<int32>(EAbilityInputID::Move));
 }
 
 void APlayerCharacter::Look(const FInputActionValue& Value)
@@ -78,8 +82,7 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 void APlayerCharacter::Aim(const FInputActionValue& Value)
 {
 	bIsAiming = Value.Get<bool>();
-	// do other camera work here, to give a better impression of the aiming working
-
+	SendAbilityLocalInput(Value, static_cast<int32>(EAbilityInputID::Aim));
 }
 
 /// <summary>
@@ -93,14 +96,14 @@ void APlayerCharacter::Aim(const FInputActionValue& Value)
 /// </summary>
 void APlayerCharacter::SendAbilityLocalInput(const FInputActionValue& Value, int32 inputID)
 {
-	if(!ASC)
+	if (!ASC)
 	{
 #if WITH_EDITOR
 		UE_LOG(LogTemp, Warning, TEXT("Ability System Component is not initialized for %s"), *GetName());
 #endif
 		return;
 	}
-	if (Value.Get<bool>()) 
+	if (Value.Get<bool>())
 	{
 		ASC->AbilityLocalInputPressed(inputID);
 

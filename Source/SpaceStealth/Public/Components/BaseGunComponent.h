@@ -8,15 +8,17 @@
 
 
 class USoundBase;
+class UBaseAbility; 
+
 /**
  * 
  */
 
-USTRUCT(BlueprintType)
-struct FGunData
+UCLASS(BlueprintType)
+class SPACESTEALTH_API UGunData : public UDataAsset
 {
 	GENERATED_BODY()
-
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun Data")
 	int32 MagazineSize;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun Data")
@@ -27,8 +29,10 @@ struct FGunData
 	int32 MaxExtraAmmo;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun Data|Empty Ammo Sound")
 	TObjectPtr<USoundBase> EmptyAmmoSound;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun Data|Abilities", meta = (AllowPrivateAccess = true))
+	TArray<TSubclassOf<UBaseAbility>> Abilities;
 
-	FGunData()
+	UGunData()
 		: MagazineSize(30), Damage(10.0f), CurrentAmmo(30), MaxExtraAmmo(90), EmptyAmmoSound(nullptr)
 	{
 	}
@@ -52,14 +56,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Gun")
 	void Reload();
 
-	FGunData GetGunData() const { return GunData; }
+	void GrantAbilities();
+
+	UGunData* GetGunData() const { return GunData; }
 
 private:
 	UPROPERTY(EditAnywhere,Category = "Animations",meta = (AllowPrivateAccess = true))
 	TObjectPtr<UAnimMontage> FireAnimation;
 	
 	UPROPERTY(EditAnywhere, Category = "Gun Data", meta = (AllowPrivateAccess = true))
-	FGunData GunData;
+	TObjectPtr<UGunData> GunData;
 
+	
 	
 };

@@ -15,8 +15,8 @@ class UBaseGunComponent;
 /**
  * 
  */
-USTRUCT(BlueprintType)
-struct FPlayerInputData
+UCLASS(BlueprintType)
+class SPACESTEALTH_API UPlayerInputData : public UDataAsset
 {
 	GENERATED_BODY()
 public :
@@ -31,8 +31,8 @@ public :
 	TObjectPtr<UInputMappingContext> InputMappingContext;
 };
 
-USTRUCT(BlueprintType)
-struct FPlayerAttackInput
+UCLASS(BlueprintType)
+class SPACESTEALTH_API UPlayerAttackInput : public UDataAsset
 {
 	GENERATED_BODY()
 public:
@@ -53,6 +53,8 @@ class SPACESTEALTH_API APlayerCharacter : public ABaseCharacter
 public:
 	APlayerCharacter();
 
+	virtual void BeginPlay() override;
+
 	virtual void OnDamageReceived(const struct FHitResult* HitResult, const float DamageAmount, AActor* HitInstigator) override; 
 	
 
@@ -63,17 +65,24 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
-	FPlayerInputData PlayerInputData;
+	TObjectPtr<UPlayerInputData> PlayerInputData;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
-	FPlayerAttackInput PlayerAttackInput;
+	TObjectPtr<UPlayerAttackInput> PlayerAttackInput;
 
 	FVector2D GetMovementAxis() const { return MovementAxis; }
 	FVector2D GetLookAxis() const { return MouseAxis; }
+	UFUNCTION(BlueprintPure)
+	bool IsAiming() const { return bIsAiming; }
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnAimStarted();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnAimEnded();
 
 protected:
 
-	UFUNCTION(BlueprintPure)
-	bool IsAiming() const { return bIsAiming; }
+
+
 
 	virtual void SendAbilityLocalInput(const FInputActionValue& Value,int32 inputID);
 
