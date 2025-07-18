@@ -8,12 +8,6 @@ UBaseGunComponent::UBaseGunComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false; // Disable ticking for this component
 
-	// Initialize GunData with default values
-	GunData.MagazineSize = 30;
-	GunData.Damage = 10.0f;
-	GunData.CurrentAmmo = GunData.MagazineSize; // Start with a full magazine
-	GunData.MaxExtraAmmo = 90; // Total ammo including extra
-	GunData.EmptyAmmoSound = nullptr; // No sound by default
 
 	// Set the skeletal mesh for the gun (optional, can be set in editor)
 	SetSkeletalMesh(nullptr);

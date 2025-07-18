@@ -27,6 +27,11 @@ struct FGunData
 	int32 MaxExtraAmmo;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun Data|Empty Ammo Sound")
 	TObjectPtr<USoundBase> EmptyAmmoSound;
+
+	FGunData()
+		: MagazineSize(30), Damage(10.0f), CurrentAmmo(30), MaxExtraAmmo(90), EmptyAmmoSound(nullptr)
+	{
+	}
 };
 
 UCLASS()

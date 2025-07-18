@@ -2,13 +2,15 @@
 
 
 #include "Characters/PlayerCharacter.h"
+#include "../SpaceStealth.h"
+#include "AbilitySystemComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/BaseGunComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
+
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Components/BaseGunComponent.h"
-
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -19,8 +21,12 @@ APlayerCharacter::APlayerCharacter()
 	PlayerInputData.LookAction = nullptr;
 	PlayerInputData.JumpAction = nullptr;
 	PlayerInputData.InputMappingContext = nullptr;
-
 	ComponentSetup(); 
+}
+
+void APlayerCharacter::OnDamageReceived(const FHitResult* HitResult, const float DamageAmount, AActor* HitInstigator)
+{
+	Super::OnDamageReceived(HitResult, DamageAmount, HitInstigator);
 
 }
 
@@ -59,22 +65,14 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
-	FVector2D Axis = Value.Get<FVector2D>();
-	FRotator ContRot = GetControlRotation();
-	const FVector XWorldVector = UKismetMathLibrary::GetRightVector(FRotator(0, ContRot.Yaw, ContRot.Roll));
-	const FVector YWorldVector = UKismetMathLibrary::GetForwardVector(FRotator(0, ContRot.Yaw, 0));
-	AddMovementInput(XWorldVector, Axis.X, false);
-	AddMovementInput(YWorldVector, Axis.Y, false);
+	MovementAxis = Value.Get<FVector2D>();
+	SendAbilityLocalInput(Value, static_cast<int32>(EAbilityInputID::Move));	
 }
 
 void APlayerCharacter::Look(const FInputActionValue& Value)
 {
-	FVector2D Axis = Value.Get<FVector2D>();
-	if (APlayerController* PC = Cast<APlayerController>(GetController()))
-	{
-		PC->AddYawInput(Axis.X);
-		PC->AddPitchInput(Axis.Y);
-	}
+	MouseAxis = Value.Get<FVector2D>();
+	SendAbilityLocalInput(Value, static_cast<int32>(EAbilityInputID::Look));
 }
 
 void APlayerCharacter::Aim(const FInputActionValue& Value)
@@ -82,6 +80,35 @@ void APlayerCharacter::Aim(const FInputActionValue& Value)
 	bIsAiming = Value.Get<bool>();
 	// do other camera work here, to give a better impression of the aiming working
 
+}
+
+/// <summary>
+/// for this function, it is getting the input value passed into it, and then checking if the value is true or false.
+/// 
+/// If it is true, it will call the AbilityLocalInputPressed function on the Ability System Component with the inputID.
+/// 
+/// otherwise, it will call the AbilityLocalInputReleased function on the Ability System Component with the inputID.
+/// 
+/// This is basically how we will tell the ability component to activate certain abilities that require actual input from the player.
+/// </summary>
+void APlayerCharacter::SendAbilityLocalInput(const FInputActionValue& Value, int32 inputID)
+{
+	if(!ASC)
+	{
+#if WITH_EDITOR
+		UE_LOG(LogTemp, Warning, TEXT("Ability System Component is not initialized for %s"), *GetName());
+#endif
+		return;
+	}
+	if (Value.Get<bool>()) 
+	{
+		ASC->AbilityLocalInputPressed(inputID);
+
+	}
+	else
+	{
+		ASC->AbilityLocalInputReleased(inputID);
+	}
 }
 
 void APlayerCharacter::ComponentSetup()

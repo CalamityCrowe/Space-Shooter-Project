@@ -34,7 +34,7 @@ public:
 	// Sets default values for this character's properties
 	ABaseCharacter();
 
-	virtual void OnDamageReceived(float Damage, const FGameplayTagContainer& DamageTags, const FHitResult& HitInfo, AActor* Instigator, AActor* DamageCauser);
+	virtual void OnDamageReceived(const struct FHitResult* HitResult, const float DamageAmount, AActor* HitInstigator) {}
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return ASC; }
 protected:
@@ -48,6 +48,11 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "GAS")
 	void OnHealthChanged(float OldHealth, float NewHealth);
 
+	virtual void ComponentSetup();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UAbilitySystemComponent> ASC;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -60,11 +65,4 @@ public:
 
 	virtual void PostInitializeComponents() override;
 
-private:
-	virtual void ComponentSetup(); 
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UAbilitySystemComponent> ASC;
-
-	
 };

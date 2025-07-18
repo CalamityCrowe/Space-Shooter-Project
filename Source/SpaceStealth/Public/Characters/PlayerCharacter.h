@@ -53,6 +53,9 @@ class SPACESTEALTH_API APlayerCharacter : public ABaseCharacter
 public:
 	APlayerCharacter();
 
+	virtual void OnDamageReceived(const struct FHitResult* HitResult, const float DamageAmount, AActor* HitInstigator) override; 
+	
+
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -64,10 +67,38 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	FPlayerAttackInput PlayerAttackInput;
 
+	FVector2D GetMovementAxis() const { return MovementAxis; }
+	FVector2D GetLookAxis() const { return MouseAxis; }
+
+protected:
+
+	UFUNCTION(BlueprintPure)
+	bool IsAiming() const { return bIsAiming; }
+
+	virtual void SendAbilityLocalInput(const FInputActionValue& Value,int32 inputID);
+
+
+
+private:
+	virtual void ComponentSetup() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun", meta = (AllowPrivateAccess = true))
+	TObjectPtr<UBaseGunComponent> GunComponent;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = true))
 	TObjectPtr<UCameraComponent> Camera;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = true))
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun", meta = (AllowPrivateAccess = true))
+	TObjectPtr<UAnimMontage> FireAnimation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun", meta = (AllowPrivateAccess = true))
+	FName AttachSocket;
+
+	bool bIsAiming; 
+
+	FVector2D MovementAxis; 
+	FVector2D MouseAxis;
 
 	UFUNCTION()
 	void Move(const FInputActionValue& Value);
@@ -76,20 +107,5 @@ public:
 	UFUNCTION()
 	void Aim(const FInputActionValue& Value);
 
-
-	UFUNCTION(BlueprintPure)
-	bool IsAiming() const { return bIsAiming; }
-
-private:
-	virtual void ComponentSetup() override;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun", meta = (AllowPrivateAccess = true))
-	TObjectPtr<UBaseGunComponent> GunComponent;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun", meta = (AllowPrivateAccess = true))
-	TObjectPtr<UAnimMontage> FireAnimation;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun", meta = (AllowPrivateAccess = true))
-	FName AttachSocket;
-
-	bool bIsAiming; 
+	
 };

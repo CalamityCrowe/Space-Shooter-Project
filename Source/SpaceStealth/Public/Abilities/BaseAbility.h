@@ -24,9 +24,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Ability")
 	bool bActivateAbilityOnGranted = false;
 	UPROPERTY(EditAnywhere, Category = "Ability")
-	float Cost;
+	float Cost{0};
 	UPROPERTY(EditAnywhere, Category = "Ability")
-	float CooldownDuration;
+	float CooldownDuration{0};
 
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 
