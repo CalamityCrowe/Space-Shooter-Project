@@ -12,6 +12,7 @@ class UInputMappingContext;
 class UCameraComponent;
 class USpringArmComponent;
 class UBaseGunComponent;
+class UPlayerHUD;	
 /**
  * 
  */
@@ -55,8 +56,8 @@ public:
 
 	virtual void BeginPlay() override;
 
-	virtual void OnDamageReceived(const struct FHitResult* HitResult, const float DamageAmount, AActor* HitInstigator) override; 
-	
+	virtual void OnDamageTakenChanged(AActor* EffectInstigator, AActor* DamageCauser, const FGameplayTagContainer& GameplayTagContainer, float Damage);
+
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -80,13 +81,12 @@ public:
 	void OnAimEnded();
 
 protected:
-
-
-
-
 	virtual void SendAbilityLocalInput(const FInputActionValue& Value,int32 inputID);
 
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "UI",meta = (AllowPrivateAccess = true))
+	TSubclassOf<UPlayerHUD> PlayerHUDRef;
 
+	UPlayerHUD* PlayerHUD;
 
 private:
 	virtual void ComponentSetup() override;

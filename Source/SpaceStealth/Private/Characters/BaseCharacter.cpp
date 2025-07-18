@@ -4,6 +4,7 @@
 #include "Characters/BaseCharacter.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/BaseAbility.h"
+#include "Attributes/BaseAttributeSet.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -13,6 +14,14 @@ ABaseCharacter::ABaseCharacter()
 
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 
+	BaseSet = CreateDefaultSubobject<UBaseAttributeSet>(TEXT("BaseAttributeSet"));
+
+
+}
+
+void ABaseCharacter::OnDamageTakenChanged(AActor* EffectInstigator, AActor* DamageCauser, const FGameplayTagContainer& GameplayTagContainer, float Damage)
+{
+	OnDamageTaken(EffectInstigator, DamageCauser, GameplayTagContainer, Damage);
 }
 
 // Called when the game starts or when spawned
@@ -20,11 +29,33 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//BaseSet->OnDamageRecieved.AddUObject(this, &ABaseCharacter::OnDamageTakenChanged);
+
+	if (ASC)
+	{
+		ASC->GetGameplayAttributeValueChangeDelegate(UBaseAttributeSet::GetHealthAttribute()).AddUObject(this, &ABaseCharacter::OnHealthAttributeChanged); 
+	}
 }
 
 void ABaseCharacter::OnHealthAttributeChanged(const FOnAttributeChangeData& Data)
 {
 	OnHealthChanged(Data.OldValue, Data.NewValue); // this calls the blueprint implementation 
+}
+
+void ABaseCharacter::GetHealth(float& CurrentHealth, float& MaxHealth) const
+{
+	if (ASC)
+	{
+		if (const UBaseAttributeSet* Set = ASC->GetSet<UBaseAttributeSet>())
+		{
+			CurrentHealth = Set->GetHealth();
+			MaxHealth = Set->GetMaxHealth();
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Attribute Set is not valid!"));
+		}
+	}
 }
 
 // Called every frame
@@ -93,7 +124,7 @@ void ABaseCharacter::PostInitializeComponents()
 
 	if (ASC)
 	{
-		ASC->InitAbilityActorInfo(this,this);
+		ASC->InitAbilityActorInfo(this, this);
 		InitializeAbilities();
 		InitializeAttributes();
 	}

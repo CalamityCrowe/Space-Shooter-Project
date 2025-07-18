@@ -21,7 +21,6 @@ void ULookAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 			FRotator ContRot = Character->GetControlRotation();
 			if(APlayerController* PC =  Cast<APlayerController>(Character->GetController()))
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Look Axis: %s"), *Axis.ToString()));
 				PC->AddYawInput(Axis.X);
 				PC->AddPitchInput(Axis.Y);
 			}

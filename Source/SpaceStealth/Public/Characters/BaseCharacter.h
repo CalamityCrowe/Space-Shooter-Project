@@ -10,6 +10,7 @@
 
 class UBaseAbility; 
 class UGameplayEffect;
+class UBaseAttributeSet;
 
 
 UCLASS(BlueprintType)
@@ -34,7 +35,9 @@ public:
 	// Sets default values for this character's properties
 	ABaseCharacter();
 
-	virtual void OnDamageReceived(const struct FHitResult* HitResult, const float DamageAmount, AActor* HitInstigator) {}
+	virtual void OnDamageTakenChanged(AActor* EffectInstigator, AActor* DamageCauser, const FGameplayTagContainer& GameplayTagContainer, float Damage);
+	UFUNCTION(BlueprintImplementableEvent, Category = "GAS")
+	void OnDamageTaken(AActor* EffectInstigator, AActor* DamageCauser, const FGameplayTagContainer& GameplayTagContainer, float Damage);
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return ASC; }
 protected:
@@ -53,6 +56,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAbilitySystemComponent> ASC;
 
+	void GetHealth(float& CurrentHealth, float& MaxHealth) const;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -64,5 +69,7 @@ public:
 	virtual void InitializeAttributes();
 
 	virtual void PostInitializeComponents() override;
+
+	TObjectPtr<UBaseAttributeSet> BaseSet; 
 
 };

@@ -10,6 +10,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Enums/AbilityEnums.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "UI/PlayerHUD.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -22,17 +23,27 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if(IsValid(PlayerHUDRef))
+	{
+		PlayerHUD = CreateWidget<UPlayerHUD>(GetWorld(), PlayerHUDRef);
+		PlayerHUD->AddToViewport();
+		PlayerHUD->SetVisibility(ESlateVisibility::Visible);
+		float Health, MaxHealth;
+		GetHealth(Health, MaxHealth);
+		PlayerHUD->UpdateHealthBar(Health,MaxHealth);
+	}
+
 	if (GunComponent)
 	{
 		GunComponent->GrantAbilities();
 	}
 }
 
-void APlayerCharacter::OnDamageReceived(const FHitResult* HitResult, const float DamageAmount, AActor* HitInstigator)
+void APlayerCharacter::OnDamageTakenChanged(AActor* EffectInstigator, AActor* DamageCauser, const FGameplayTagContainer& GameplayTagContainer, float Damage)
 {
-	Super::OnDamageReceived(HitResult, DamageAmount, HitInstigator);
-
+	Super::OnDamageTakenChanged(EffectInstigator, DamageCauser, GameplayTagContainer, Damage);
 }
+
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -64,7 +75,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	float Health, MaxHealth;
+	GetHealth(Health, MaxHealth);
+	PlayerHUD->UpdateHealthBar(Health, MaxHealth);
 }
 
 void APlayerCharacter::Move(const FInputActionValue& Value)

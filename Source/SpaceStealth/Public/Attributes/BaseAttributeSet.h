@@ -6,7 +6,7 @@
 #include "AttributeSetDefinition.h"
 #include "BaseAttributeSet.generated.h"
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FAttributeEventDamageRecieved,float)
+DECLARE_MULTICAST_DELEGATE_FourParams(FDamageTakenEvent, AActor* /*Effect Instigator*/, AActor* /*Effect Instigator*/, const FGameplayTagContainer& /*Tags*/, float /*Damage*/);
 
 /**
  * 
@@ -23,8 +23,9 @@ public:
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, MaxHealth);
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, DamageRecieved);
 
+
 	mutable FAttributeEvent OnOutOfHealth;
-	mutable FAttributeEventDamageRecieved OnDamageRecieved;
+	mutable FDamageTakenEvent OnDamageRecieved;
 
 protected:
 	virtual bool PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data) override;
@@ -38,8 +39,11 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Health", meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData Health;
+
+
 	UPROPERTY(BlueprintReadOnly, Category = "Health", meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData MaxHealth;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Damage", meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData DamageRecieved;
 };

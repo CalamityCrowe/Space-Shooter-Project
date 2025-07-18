@@ -17,7 +17,7 @@ void UPlayerHUD::NativeConstruct()
 
 void UPlayerHUD::UpdateHealthBar(float CurrentHealth, float MaxHealth)
 {
-	if (IsValid(HealthBar) && !HealthText)
+	if (IsValid(HealthBar) && IsValid(HealthText))
 	{
 		UpdateBar(CurrentHealth, MaxHealth, HealthBar, HealthText);
 	}
